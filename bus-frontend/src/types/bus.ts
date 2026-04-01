@@ -1,5 +1,7 @@
 export interface Bus {
-  id: string;
+  id?: number | string;
+  busNumber: string;
   name: string;
-  seats: number;
+  totalSeats: number;
+  busType: 'AC' | 'Non-AC' | 'Sleeper';
 }
