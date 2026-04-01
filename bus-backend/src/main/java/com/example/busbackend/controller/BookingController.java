@@ -1,9 +1,13 @@
 package com.example.busbackend.controller;
 
-import com.example.busbackend.entity.Booking;
-import com.example.busbackend.repository.BookingRepository;
+import com.example.busbackend.dto.bookings.BookingRequestDTO;
+import com.example.busbackend.dto.bookings.BookingResponseDTO;
+import com.example.busbackend.dto.common.ApiResponse;
+import com.example.busbackend.security.UserPrincipal;
+import com.example.busbackend.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,25 +17,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingController {
 
-    private final BookingRepository bookingRepository;
+    private final BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
-        if (booking.getStatus() == null) {
-            booking.setStatus(Booking.BookingStatus.BOOKED);
-        }
-        return ResponseEntity.ok(bookingRepository.save(booking));
+    public ResponseEntity<BookingResponseDTO> createBooking(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody BookingRequestDTO request) {
+        return ResponseEntity.ok(bookingService.createBooking(userPrincipal.getUser().getId(), request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
-        return bookingRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<BookingResponseDTO> getBookingById(@PathVariable Long id) {
+        return ResponseEntity.ok(bookingService.getBookingById(id));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Booking>> getBookingsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(bookingRepository.findByUserId(userId));
+    @GetMapping("/me")
+    public ResponseEntity<List<BookingResponseDTO>> getMyBookings(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(bookingService.getUserBookings(userPrincipal.getUser().getId()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> cancelBooking(@PathVariable Long id) {
+        bookingService.cancelBooking(id);
+        ApiResponse<Void> response = new ApiResponse<>(true, "Booking cancelled successfully", null);
+        return ResponseEntity.ok(response);
     }
 }
