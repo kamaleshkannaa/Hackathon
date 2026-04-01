@@ -1,2 +1,7 @@
-// File created script 
-export const tmp = {};
+import { useBooking as useBookingContext } from '../context/BookingContext';
+
+export const useBooking = () => {
+  return useBookingContext();
+};
+
+export default useBooking;
