@@ -2,14 +2,16 @@ import React from 'react';
 
 export const TableView = ({ headers, children }: { headers: string[], children: React.ReactNode }) => {
   return (
-    <div className="overflow-x-auto bg-white rounded-lg border shadow-sm">
+    <div className="overflow-x-auto glass-panel rounded-2xl border border-white/5 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)]">
       <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-gray-50 border-b">
-            {headers.map((h, i) => <th key={i} className="p-4 font-semibold text-gray-600 text-sm uppercase tracking-wider">{h}</th>)}
+        <thead className="bg-[#161920] border-b border-white/10">
+          <tr>
+            {headers.map((h, i) => (
+              <th key={i} className="p-5 font-black text-slate-400 text-xs uppercase tracking-[0.2em]">{h}</th>
+            ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200">
+        <tbody className="divide-y divide-white/5 bg-[#0b0c0f]/50">
           {children}
         </tbody>
       </table>

@@ -3,19 +3,23 @@ import React, { forwardRef } from 'react';
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  icon?: React.ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, className = '', ...props }, ref) => {
+  ({ label, error, icon, className = '', ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-1 w-full">
-        {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
-        <input
-          ref={ref}
-          className={`border ${error ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'} rounded-lg px-3 py-2 outline-none focus:ring-2 transition-all ${className}`}
-          {...props}
-        />
-        {error && <span className="text-xs text-red-500">{error}</span>}
+      <div className="flex flex-col gap-1.5 w-full">
+        {label && <label className="text-sm font-medium text-slate-300 tracking-wide">{label}</label>}
+        <div className="relative">
+          {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">{icon}</div>}
+          <input
+            ref={ref}
+            className={`w-full glass-input rounded-xl px-4 py-3 outline-none transition-all duration-300 ${icon ? 'pl-10' : ''} ${error ? '!border-rose-500 !focus:ring-rose-500/30' : ''} ${className}`}
+            {...props}
+          />
+        </div>
+        {error && <span className="text-xs font-medium text-rose-400 mt-1 animate-pulse">{error}</span>}
       </div>
     );
   }

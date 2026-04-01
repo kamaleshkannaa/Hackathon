@@ -8,7 +8,7 @@ import { createBooking } from '../../services/bookingService';
 import { getSeatsByBus } from '../../services/seatService';
 import { useAuth } from '../../hooks/useAuth';
 import { Loader } from '../../components/common/Loader';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MapPin } from 'lucide-react';
 
 export default function BookingPage() {
   const { id } = useParams();
@@ -21,16 +21,12 @@ export default function BookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login', { state: { from: `/booking/${id}` }});
-    }
+    if (!user) navigate('/login', { state: { from: `/booking/${id}` }});
   }, [user, navigate, id]);
 
   useEffect(() => {
     if (schedule?.busId) {
       getSeatsByBus(schedule.busId).then(res => {
-        // mock logic: filter seats that match this schedule and are booked
-        // API depends on exact backend integration. Assuming we get booked numbers.
         const booked = res.data.map((seat: any) => seat.seatNumber);
         setBookedSeats(booked);
       }).catch(console.error);
@@ -42,7 +38,7 @@ export default function BookingPage() {
     try {
       setIsSubmitting(true);
       const payload = {
-        userId: user.id || 1, // fallback
+        userId: user.id || 1,
         scheduleId: schedule.id,
         seatNumbers: selectedSeats,
         totalPrice: schedule.price * selectedSeats.length,
@@ -50,10 +46,11 @@ export default function BookingPage() {
         bookingDate: new Date().toISOString()
       };
       await createBooking(payload);
-      alert('Booking Successful!');
+      
+      // Success interaction
       navigate('/my-bookings');
     } catch (e: any) {
-      alert(e.response?.data?.message || 'Booking failed. Try again.');
+      alert(e.response?.data?.message || 'Booking failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -63,27 +60,40 @@ export default function BookingPage() {
     setSelectedSeats(prev => prev.includes(num) ? prev.filter(s => s !== num) : [...prev, num]);
   };
 
-  if (schedLoad || !schedule) return <div className="mt-20"><Loader /></div>;
+  if (schedLoad || !schedule) return <div className="mt-32"><Loader /></div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col pt-6 pb-20">
-      <div className="max-w-6xl mx-auto w-full px-4">
-        <button onClick={() => navigate(-1)} className="flex items-center text-blue-600 font-medium mb-6 hover:underline">
-          <ArrowLeft className="w-4 h-4 mr-1" /> Back to Search
+    <div className="min-h-[calc(100vh-5rem)] bg-[#0b0c0f] flex flex-col pt-12 pb-32 relative">
+      {/* Background Decor */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 blur-[150px] rounded-full"></div>
+      
+      <div className="max-w-6xl mx-auto w-full px-4 relative z-10">
+        <button onClick={() => navigate(-1)} className="flex items-center text-slate-400 hover:text-white font-medium mb-8 transition-colors group">
+          <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center mr-3 group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> 
+          </div>
+          Return to Results
         </button>
         
-        <div className="bg-white p-6 rounded-xl border mb-6 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{schedule.bus?.name}</h1>
-            <p className="text-gray-500">{schedule.route?.source} to {schedule.route?.destination}</p>
+        <div className="glass-panel p-8 rounded-3xl mb-10 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-6 border-l-4 border-l-indigo-500 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-fuchsia-500/5 blur-[100px]"></div>
+          
+          <div className="relative z-10">
+            <div className="inline-block px-3 py-1 bg-white/5 rounded text-indigo-400 text-xs font-bold tracking-widest uppercase mb-3">
+              Route #{schedule.id?.toString().padStart(4, '0') || '0000'}
+            </div>
+            <h1 className="text-4xl font-black text-white tracking-tight leading-tight">{schedule.bus?.name}</h1>
+            <div className="text-slate-400 flex items-center gap-2 mt-2 font-medium">
+              <span className="text-white">{schedule.route?.source}</span> <MapPin className="w-4 h-4 text-indigo-400"/> <span className="text-white">{schedule.route?.destination}</span>
+            </div>
           </div>
-          <div className="text-right">
-            <span className="block text-2xl font-bold text-blue-600">₹{schedule.price}</span>
-            <span className="text-sm tracking-wide text-gray-400 uppercase">Per Seat</span>
+          <div className="text-right glass-panel p-4 rounded-2xl border-white/5 relative z-10 bg-black/20">
+            <span className="block text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-400 to-indigo-400">₹{schedule.price}</span>
+            <span className="text-sm tracking-[0.2em] text-slate-500 font-bold uppercase mt-1 block">Per Seat</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2">
             <SeatSelector 
               totalSeats={schedule.bus?.totalSeats || 40}

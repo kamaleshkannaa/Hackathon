@@ -10,27 +10,30 @@ export default function ManageRoutes() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Manage Routes</h1>
-        <Button onClick={() => setIsOpen(true)}>Add Route</Button>
+    <div className="p-8 relative min-h-screen bg-[#0b0c0f]">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+           <h1 className="text-3xl font-black text-white tracking-tight uppercase">Route Network</h1>
+           <div className="w-12 h-1 bg-gradient-to-r from-indigo-500 to-fuchsia-500 mt-2 rounded-full"></div>
+        </div>
+        <Button onClick={() => setIsOpen(true)}>Add Sector</Button>
       </div>
       
-      <TableView headers={['ID', 'Source', 'Destination', 'Distance', 'Actions']}>
+      <TableView headers={['Grid ID', 'Origin', 'Terminus', 'Range', 'Override']}>
         {routes?.map(route => (
-          <tr key={route.id} className="hover:bg-gray-50">
-            <td className="p-4">{route.id}</td>
-            <td className="p-4">{route.source}</td>
-            <td className="p-4">{route.destination}</td>
-            <td className="p-4">{route.distance} km</td>
-            <td className="p-4">
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">Edit</button>
+          <tr key={route.id} className="hover:bg-white/5 transition-colors border-white/5">
+            <td className="p-5 font-mono text-indigo-400">RC-{route.id}</td>
+            <td className="p-5 font-bold text-white">{route.source}</td>
+            <td className="p-5 font-bold text-white">{route.destination}</td>
+            <td className="p-5 text-slate-400 font-mono">{route.distance} km</td>
+            <td className="p-5">
+              <button className="text-fuchsia-400 hover:text-fuchsia-300 text-sm font-black tracking-widest uppercase">Repath</button>
             </td>
           </tr>
         ))}
       </TableView>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Add New Route">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Establish Sector">
         <RouteForm onSuccess={() => { setIsOpen(false); refetch(); }} />
       </Modal>
     </div>
